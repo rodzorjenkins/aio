@@ -1,0 +1,40 @@
+﻿<Window x:Class="BDCustomLauncher.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BDCustomLauncher.Views"
+        xmlns:vms="clr-namespace:BDCustomLauncher.ViewModels"
+        mc:Ignorable="d"
+        Title="Settings"
+        Width="350"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <Window.DataContext>
+        <vms:SettingsViewModel></vms:SettingsViewModel>
+    </Window.DataContext>
+
+    <Grid>
+        <GroupBox Header="Settings"  Margin="5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Content="Game Path: "></Label>
+                <TextBox Text="{Binding textGamePath}" Grid.Row="0" Grid.Column="1" Margin="5"></TextBox>
+                <Button Content="Browse" VerticalAlignment="Center" Grid.Row="0" Grid.Column="2" Margin="5" Command="{Binding buttonBrowseGame}"></Button>
+
+                <Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Content="Save" Margin="5" Command="{Binding buttonSave}"></Button>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>
