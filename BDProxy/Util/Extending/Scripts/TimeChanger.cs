@@ -1,4 +1,4 @@
-using BDProxy.Network;
+using BDProxy.Core;
 using BDProxy.Processors.Model;
 using BDShared.Network.Model;
 using BDShared.Util;
@@ -8,12 +8,9 @@ namespace BDProxy.Util.Extending
 
     public class TimeChanger : Script
     {
-
-        private TcpProxy gameProxy;
-
-        public override void Load(TcpProxy[] proxys)
+        
+        public override void Load()
         {
-            gameProxy = proxys[1];
             RegisterCommand("time", ProcessTimeCommand);
 
             Logger.Log("TimeChanger", "has been loaded.");
@@ -32,12 +29,14 @@ namespace BDProxy.Util.Extending
                 else if(time.Equals("night"))
                     packet.AddInt(200900);
                 packet.AddBytes("000000000000000074BC2E200000000000A0AE5600000000000000000000000000");
-                gameProxy.SendToGame(packet);
+                SendLoginPacketToGame(packet);
             }
         }
 
         public override void Unload()
         {
+            DeregisterCommand("time");
+
             Logger.Log("TimeChanger", "has been unloaded.");
         }
         

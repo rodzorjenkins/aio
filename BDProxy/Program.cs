@@ -1,9 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using BDProxy.Core;
 using BDProxy.Network;
 using BDProxy.Processors;
 using BDProxy.Util.Extending;
@@ -14,15 +14,14 @@ namespace BDProxy
 {
     class Program
     {
-        
+
+        private ScriptController scriptController;
+
         static void Main(string[] args)
         {
             Console.Title = string.Format("BDProxy | v{0}", Assembly.GetExecutingAssembly().GetName().Version);
             new Program();
-        }
-
-        private TcpProxy loginProxy, gameProxy;
-        private ScriptController scriptController;
+        }        
 
         private void TitleArt()
         {
@@ -37,26 +36,16 @@ namespace BDProxy
         public Program()
         {
             TitleArt();
+            StartServers();
 
-            loginProxy = new TcpProxy();
-            loginProxy.ServerListening += LoginProxy_ServerListening;
-            loginProxy.ConnectionAccepted += LoginProxy_ConnectionAccepted;
-            loginProxy.GameToServerPacket += LoginProxy_GameToServerPacket;
-            loginProxy.ServerToGamePacket += LoginProxy_ServerToGamePacket;
-            loginProxy.StartServer(new IPEndPoint(IPAddress.Any, 8888));
-
-            gameProxy = new TcpProxy();
-            gameProxy.ServerListening += GameProxy_ServerListening;
-            gameProxy.ConnectionAccepted += GameProxy_ConnectionAccepted;
-            gameProxy.GameToServerPacket += GameProxy_GameToServerPacket;
-            gameProxy.ServerToGamePacket += GameProxy_ServerToGamePacket;
-            gameProxy.StartServer(new IPEndPoint(IPAddress.Any, 8889));            
-
-            scriptController = new ScriptController();
+#if DEBUG
+            scriptController = new ScriptController("../../Util/Extending/Scripts/");
+#else
+            scriptController = new ScriptController("scripts/");
+#endif
             scriptController.LoadScripts();
+            scriptController.Scripts.ForEach(t => t.Load());
 
-            scriptController.Scripts.ForEach(t => t.Load(new TcpProxy[] { loginProxy, gameProxy }));
-            
             while(true)
             {
                 new Thread(() =>
@@ -78,7 +67,7 @@ namespace BDProxy
                 {
                     scriptController.Scripts.ForEach(t => t.Unload());
                     scriptController.LoadScripts();
-                    scriptController.Scripts.ForEach(t => t.Load(new TcpProxy[] { loginProxy, gameProxy }));
+                    scriptController.Scripts.ForEach(t => t.Load());
                 }
                 else
                     break;
@@ -90,13 +79,31 @@ namespace BDProxy
             Console.ReadLine();
         }
 
+        private void StartServers()
+        {
+            MainContext.loginProxy = new TcpProxy();
+            MainContext.loginProxy.ServerListening += LoginProxy_ServerListening;
+            MainContext.loginProxy.ConnectionAccepted += LoginProxy_ConnectionAccepted;
+            MainContext.loginProxy.GameToServerPacket += LoginProxy_GameToServerPacket;
+            MainContext.loginProxy.ServerToGamePacket += LoginProxy_ServerToGamePacket;
+            MainContext.loginProxy.StartServer(new IPEndPoint(IPAddress.Any, 8888));
+
+            MainContext.gameProxy = new TcpProxy();
+            MainContext.gameProxy.ServerListening += GameProxy_ServerListening;
+            MainContext.gameProxy.ConnectionAccepted += GameProxy_ConnectionAccepted;
+            MainContext.gameProxy.GameToServerPacket += GameProxy_GameToServerPacket;
+            MainContext.gameProxy.ServerToGamePacket += GameProxy_ServerToGamePacket;
+            MainContext.gameProxy.StartServer(new IPEndPoint(IPAddress.Any, 8889));
+        }
+
+
         #region "LoginProxy"
         private void LoginProxy_ServerToGamePacket(object sender, BDPacket e)
         {
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Login_SMSG(e);
 
-            loginProxy.SendToGame(e);
+            MainContext.loginProxy.SendToGame(e);
         }
 
         private void LoginProxy_GameToServerPacket(object sender, BDPacket e)
@@ -104,13 +111,13 @@ namespace BDProxy
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Login_CMSG(e);
 
-            loginProxy.SendToServer(e);
+            MainContext.loginProxy.SendToServer(e);
         }
 
         private void LoginProxy_ConnectionAccepted(object sender, EventArgs e)
         {
             Logger.Log("LoginProxy", "Game client has been accepted.", Logger.LogLevel.Normal);
-            loginProxy.ConnectClient(new IPEndPoint(IPAddress.Parse("37.48.82.146"), 8888));
+            MainContext.loginProxy.ConnectClient(new IPEndPoint(IPAddress.Parse("37.48.82.146"), 8888));
         }
 
         private void LoginProxy_ServerListening(object sender, EventArgs e)
@@ -125,10 +132,7 @@ namespace BDProxy
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Game_SMSG(e);
 
-            if(e.PacketId == 0x0d55)
-                File.WriteAllBytes(@"C:\Users\Johannes\Desktop\SMSG_SetGameTime.bin", e.ToArray());
-
-            gameProxy.SendToGame(e);
+            MainContext.gameProxy.SendToGame(e);
         }
 
         private void GameProxy_GameToServerPacket(object sender, BDPacket e)
@@ -155,13 +159,13 @@ namespace BDProxy
                 }
             }
             else
-                gameProxy.SendToServer(e);
+                MainContext.gameProxy.SendToServer(e);
         }
 
         private void GameProxy_ConnectionAccepted(object sender, EventArgs e)
         {
             Logger.Log("GameProxy", "Game client has been accepted.", Logger.LogLevel.Normal);
-            gameProxy.ConnectClient(new IPEndPoint(IPAddress.Parse("37.48.82.139"), 8889));
+            MainContext.gameProxy.ConnectClient(new IPEndPoint(IPAddress.Parse("37.48.82.139"), 8889));
         }
 
         private void GameProxy_ServerListening(object sender, EventArgs e)
@@ -169,6 +173,7 @@ namespace BDProxy
             Logger.Log("GameProxy", "Attempt to bind socket to 0.0.0.0:8889!", Logger.LogLevel.Info);
         }
         #endregion
+
 
     }
 }

@@ -9,7 +9,7 @@ namespace BDProxy.Util.Extending
     public class ServerListHook : Script
     {
 
-        public override void Load(TcpProxy[] proxys)
+        public override void Load()
         {
             Logger.Log("ServerListHook", "has been loaded.");
         }

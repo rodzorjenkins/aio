@@ -10,15 +10,22 @@ namespace BDProxy.Util.Extending
     {
 
         public List<Script> Scripts;
+        public string ScriptLocation { get; set; }
 
         public ScriptController()
         {
             Scripts = new List<Script>();
+            ScriptLocation = "scripts\\";
+        }
+
+        public ScriptController(string scriptLocation) : this()
+        {
+            ScriptLocation = scriptLocation;
         }
 
         public void LoadScripts()
         {
-            string[] files = Directory.GetFiles("scripts\\", "*.cs");
+            string[] files = Directory.GetFiles(ScriptLocation, "*.cs");
             Scripts.Clear();
             foreach(var file in files)
             {
