@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -132,6 +133,9 @@ namespace BDProxy
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Game_SMSG(e);
 
+            if(e.PacketId == 0xd55)
+                File.WriteAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\SMSG_SetGameTime.bin", e.ToArray());
+
             MainContext.gameProxy.SendToGame(e);
         }
 
@@ -139,6 +143,8 @@ namespace BDProxy
         {
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Game_CMSG(e);
+
+            
 
             if(e.PacketId == 0xEA8)
             {
