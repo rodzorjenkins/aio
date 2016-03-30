@@ -27,6 +27,8 @@ namespace BDProxy.Util.Extending
                     packet.AddInt(20000);
                 else if(time.Equals("night"))
                     packet.AddInt(200900);
+                else
+                    return;
                 packet.AddBytes("000000000000000074BC2E200000000000A0AE5600000000000000000000000000");
                 SendGamePacketToGame(packet);
             }

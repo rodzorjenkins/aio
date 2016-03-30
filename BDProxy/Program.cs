@@ -7,6 +7,7 @@ using System.Threading;
 using BDProxy.Core;
 using BDProxy.Network;
 using BDProxy.Processors;
+using BDProxy.Processors.Model;
 using BDProxy.Util.Extending;
 using BDShared.Network.Model;
 using BDShared.Util;
@@ -34,44 +35,40 @@ namespace BDProxy
             Console.WriteLine("] Coded by Johannes Jacobs");
         }
 
+        private void SetupCommands()
+        {
+            CommandProcessor.Register("reload", reloadScriptsCallback);
+        }
+
+        private void reloadScriptsCallback(Command command)
+        {
+            if(scriptController == null)
+                return;
+
+            scriptController.Scripts.ForEach(t => t.Unload());
+            scriptController.LoadScripts();
+            scriptController.Scripts.ForEach(t => t.Load());
+        }
+
         public Program()
         {
             TitleArt();
             StartServers();
+            SetupCommands();
 
-#if DEBUG
             scriptController = new ScriptController("../../Util/Extending/Scripts/");
-#else
-            scriptController = new ScriptController("scripts/");
-#endif
             scriptController.LoadScripts();
             scriptController.Scripts.ForEach(t => t.Load());
 
             while(true)
             {
-                new Thread(() =>
+                try
                 {
-                    while(true)
-                    {
-                        try
-                        {
-                            scriptController.Scripts.ForEach(t => t.Tick());
-                        }
-                        catch(Exception) { break; }
-                    }
-                }).Start();
+                    scriptController.Scripts.ForEach(t => t.Tick());
+                }
+                catch(Exception) { break; }
 
                 Thread.Sleep(1);
-
-                string input = Console.ReadLine();
-                if(input.Equals("reload"))
-                {
-                    scriptController.Scripts.ForEach(t => t.Unload());
-                    scriptController.LoadScripts();
-                    scriptController.Scripts.ForEach(t => t.Load());
-                }
-                else
-                    break;
             }
 
             scriptController.Scripts.ForEach(t => t.Unload());
@@ -133,9 +130,6 @@ namespace BDProxy
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Game_SMSG(e);
 
-            if(e.PacketId == 0xd55)
-                File.WriteAllBytes(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\SMSG_SetGameTime.bin", e.ToArray());
-
             MainContext.gameProxy.SendToGame(e);
         }
 
@@ -143,9 +137,7 @@ namespace BDProxy
         {
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Game_CMSG(e);
-
             
-
             if(e.PacketId == 0xEA8)
             {
                 var messageLen = e.GetUShort(11) - 2;
@@ -162,10 +154,10 @@ namespace BDProxy
                             command.Parameters.Add(parameters[i]);
                         command.Callback(command);
                     }
+                    return;
                 }
             }
-            else
-                MainContext.gameProxy.SendToServer(e);
+            MainContext.gameProxy.SendToServer(e);
         }
 
         private void GameProxy_ConnectionAccepted(object sender, EventArgs e)
