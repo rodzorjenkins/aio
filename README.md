@@ -9,3 +9,6 @@
 	* A shared library for common function used in most projects. (WIP)
 * **BDCustomLauncher**
 	* A custom launcher for Black Desert that prevents resetting the authentic_domain to original host everytime.
+
+
+**Everything is licensed under GPL V3.**
