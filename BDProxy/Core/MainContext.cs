@@ -6,6 +6,7 @@ namespace BDProxy.Core
     {
 
         public static TcpProxy loginProxy, gameProxy;
+        public static bool IsPlayerIngame { get; set; }
         
     }
 }
