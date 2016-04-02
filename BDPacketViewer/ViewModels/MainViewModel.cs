@@ -12,7 +12,7 @@ using Microsoft.Win32;
 
 namespace BDPacketViewer.ViewModels
 {
-    [Author("Johannes Jacobs")]
+    [Developer("Johannes Jacobs")]
     internal class MainViewModel : ViewModelBase
     {
 
@@ -31,7 +31,7 @@ namespace BDPacketViewer.ViewModels
             }
         }
 
-        private BdoTransformer packetTransformer;
+        private BDTransformer packetTransformer;
                 
         public MainViewModel()
         {
@@ -52,7 +52,7 @@ namespace BDPacketViewer.ViewModels
                 return;
 
             var packet = new BDPacket(File.ReadAllBytes(openFileDialog.FileName));
-            packetTransformer = new BdoTransformer(packet.Buffer.Extract(5));
+            packetTransformer = new BDTransformer(packet.ToArray().Extract(5));
         }
 
         private void buttonLoadPacket_Click(object o)
@@ -67,17 +67,17 @@ namespace BDPacketViewer.ViewModels
                 return;
 
             var packet = new BDPacket(File.ReadAllBytes(openFileDialog.FileName));
-            var packetBody = packet.Buffer.Extract(2);
+            var packetBody = packet.ToArray().Extract(2);
 
             if(packet.IsEncrypted)
             {
                 if(packetTransformer != null)
-                    packetTransformer.Transform(ref packetBody, true);
+                    packetTransformer.Transform(ref packetBody, 0, true);
                 else
                     MessageBox.Show("You need to specify the encryption packet first in order to decrypt encrypted packets.", "Encryption packet required", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
-            FormatPacket(new BDPacket(packet.Buffer.Extract(0, 2).Concat(packetBody).ToArray()));
+            FormatPacket(new BDPacket(packet.ToArray().Extract(0, 2).Concat(packetBody).ToArray()));
         }
 
         private void FormatPacket(BDPacket packet)
@@ -85,11 +85,11 @@ namespace BDPacketViewer.ViewModels
             var b = new StringBuilder();
 
             b.AppendLine($"Size: {packet.Length}");
-            b.AppendLine($"OpCode: 0x{packet.OpCode:X4}");
+            b.AppendLine($"OpCode: 0x{packet.PacketId:X4}");
             b.AppendLine($"Encrypted: {packet.IsEncrypted}");
             if(packet.IsEncrypted) b.AppendLine($"SequenceId: {packet.SequenceId}");
             b.AppendLine();
-            b.Append(packet.Buffer.FormatHex());
+            b.Append(packet.ToArray().FormatHex());
             txtPacketView = b.ToString();
         }
 
