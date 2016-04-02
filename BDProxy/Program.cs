@@ -137,7 +137,7 @@ namespace BDProxy
         {
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Game_CMSG(e);
-
+            
             if(e.PacketId == 0xCEE)
                 MainContext.IsPlayerIngame = true;
             

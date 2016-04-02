@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDCustomLauncher", "BDCusto
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BDPacketViewer", "BDPacketViewer", "{DAA5B1F8-9C80-4818-9CF5-67D0FD7E6B5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDPacketViewer", "C:\Users\Johannes\Desktop\backup\BDPacketViewer\BDPacketViewer.csproj", "{FBDE3C7F-54AC-4CD0-B7D2-8F260F50F7A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDPacketViewer", "BDPacketViewer\BDPacketViewer.csproj", "{FBDE3C7F-54AC-4CD0-B7D2-8F260F50F7A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
