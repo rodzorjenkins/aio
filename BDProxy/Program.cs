@@ -52,13 +52,14 @@ namespace BDProxy
 
         public Program()
         {
-            TitleArt();
-            StartServers();
+            TitleArt();            
             SetupCommands();
 
             scriptController = new ScriptController("../../Util/Extending/Scripts/");
             scriptController.LoadScripts();
             scriptController.Scripts.ForEach(t => t.Load());
+
+            StartServers();
 
             while(true)
             {
@@ -129,7 +130,7 @@ namespace BDProxy
         {
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Game_SMSG(e);
-
+            
             MainContext.gameProxy.SendToGame(e);
         }
 

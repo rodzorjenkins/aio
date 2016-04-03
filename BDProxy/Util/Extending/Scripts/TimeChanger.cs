@@ -1,20 +1,26 @@
 using BDProxy.Processors.Model;
 using BDShared.Network.Model;
-using BDShared.Util;
 
 namespace BDProxy.Util.Extending
 {
 
     public class TimeChanger : Script
     {
-        
+
+        public override string Name
+        {
+            get
+            {
+                return "TimeChanger";
+            }
+        }
+
         public override void Load()
         {
             RegisterCommand("time", ProcessTimeCommand);
-
-            Logger.Log("TimeChanger", "has been loaded.");
+            base.Load();
         }
-
+        
         private void ProcessTimeCommand(Command command)
         {
             if(command.Parameters.Count < 1)
@@ -37,8 +43,7 @@ namespace BDProxy.Util.Extending
         public override void Unload()
         {
             DeregisterCommand("time");
-
-            Logger.Log("TimeChanger", "has been unloaded.");
+            base.Unload();
         }
         
     }

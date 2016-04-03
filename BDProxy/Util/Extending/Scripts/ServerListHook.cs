@@ -1,5 +1,4 @@
 using System.Text;
-using BDProxy.Network;
 using BDShared.Network.Model;
 using BDShared.Util;
 
@@ -9,9 +8,17 @@ namespace BDProxy.Util.Extending
     public class ServerListHook : Script
     {
 
+        public override string Name
+        {
+            get
+            {
+                return "ServerListHook";
+            }
+        }
+
         public override void Load()
         {
-            Logger.Log("ServerListHook", "has been loaded.");
+            base.Load();
         }
 
         public override BDPacket Login_SMSG(BDPacket packet)
@@ -75,7 +82,7 @@ namespace BDProxy.Util.Extending
 
         public override void Unload()
         {
-            Logger.Log("ServerListHook", "has been unloaded.");
+            base.Unload();
         }
         
     }

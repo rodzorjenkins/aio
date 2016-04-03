@@ -40,7 +40,7 @@ namespace BDProxy.Util.Extending
                 }
             }
 
-            Logger.Log("ScriptController", "Loaded {0} script(s).", Logger.LogLevel.Normal, Scripts.Count);
+            Logger.Log("ScriptController", "Loaded {0} script(s).", Logger.LogLevel.Script, Scripts.Count);
         }
 
         public void UnloadScripts()

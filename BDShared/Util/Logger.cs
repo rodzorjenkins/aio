@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BDShared.Util
 {
@@ -14,7 +10,8 @@ namespace BDShared.Util
             Normal,
             Info,
             Warning,
-            Error
+            Error,
+            Script
         }
 
         private static void SetConsoleColor(LogLevel logLevel)
@@ -33,6 +30,9 @@ namespace BDShared.Util
                 case LogLevel.Error:
                     Console.ForegroundColor = ConsoleColor.Red;
                     break;
+                case LogLevel.Script:
+                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                    break;
             }
         }
 
@@ -45,18 +45,22 @@ namespace BDShared.Util
         {
             SetConsoleColor(logLevel);
 
-            Console.WriteLine(string.Format("[{0}] {1}", tag, message));
+            Console.Write(string.Format("[{0}] ", tag));
 
             ResetConsoleColor();
+
+            Console.WriteLine(message);
         }
 
         public static void Log(string tag, string message, LogLevel logLevel = LogLevel.Normal, params object[] args)
         {
             SetConsoleColor(logLevel);
 
-            Console.WriteLine(string.Format("[{0}] {1}", tag, string.Format(message, args)));
-
+            Console.Write(string.Format("[{0}] ", tag));
+            
             ResetConsoleColor();
+
+            Console.WriteLine(string.Format(message, args));
         }
 
     }

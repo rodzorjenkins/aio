@@ -2,16 +2,25 @@
 using BDProxy.Processors;
 using BDProxy.Processors.Model;
 using BDShared.Network.Model;
+using BDShared.Util;
 
 namespace BDProxy.Util.Extending
 {
     public abstract class Script
     {
+
+        /// <summary>
+        /// Gets a value indicating the name of this script.
+        /// </summary>
+        public abstract string Name { get; }
         
         /// <summary>
         /// Occurs whenever this script gets loaded.
         /// </summary>
-        public virtual void Load() { }
+        public virtual void Load()
+        {
+            Logger.Log(Name, "has been loaded.", Logger.LogLevel.Script);
+        }
 
         public virtual void Tick() { }
 
@@ -36,7 +45,7 @@ namespace BDProxy.Util.Extending
         }
 
         /// <summary>
-        /// Determines whether the player is ingame.
+        /// Gets a value indicating whether the player is ingame.
         /// </summary>
         public bool IsPlayerIngame { get { return MainContext.IsPlayerIngame; } }
 
@@ -120,7 +129,10 @@ namespace BDProxy.Util.Extending
         /// <summary>
         /// Occurs whenever this script gets unloaded.
         /// </summary>
-        public virtual void Unload() { }
+        public virtual void Unload()
+        {
+            Logger.Log(Name, "has been unloaded.", Logger.LogLevel.Script);
+        }
 
     }
 }

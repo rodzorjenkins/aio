@@ -198,6 +198,12 @@ namespace BDShared.Network.Model
             return binaryReader.ReadByte();
         }
 
+        public long GetLong(int pos)
+        {
+            memoryStream.Position = pos;
+            return binaryReader.ReadInt64();
+        }
+
         public void Transform(ref BDTransformer transformer, bool encrypt)
         {
             if(!IsEncrypted)
