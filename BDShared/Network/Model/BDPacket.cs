@@ -11,6 +11,12 @@ namespace BDShared.Network.Model
     public class BDPacket : IDisposable
     {
 
+        public enum DumpLocation
+        {
+            Desktop,
+            Custom
+        }
+
         private MemoryStream memoryStream;
         private BinaryReader binaryReader;
         private BinaryWriter binaryWriter;
@@ -121,6 +127,15 @@ namespace BDShared.Network.Model
             AddShort(data);
         }
 
+        public void SetFloat(float data, int pos)
+        {
+            if(Length < pos)
+                throw new Exception("BDPacket object is not long enough.");
+
+            memoryStream.Position = pos;
+            AddFloat(data);
+        }
+
         public void SetBool(bool data, int pos)
         {
             if(Length < pos)
@@ -147,6 +162,9 @@ namespace BDShared.Network.Model
             memoryStream.Position = pos;
             AddBytes(data);
         }
+
+        public void AddFloat(float data)
+            => binaryWriter.Write(data);
 
         public void AddUShort(ushort data)
             => binaryWriter.Write(data);
@@ -204,6 +222,12 @@ namespace BDShared.Network.Model
             return binaryReader.ReadInt64();
         }
 
+        public float GetFloat(int pos)
+        {
+            memoryStream.Position = pos;
+            return binaryReader.ReadSingle();
+        }
+
         public void Transform(ref BDTransformer transformer, bool encrypt)
         {
             if(!IsEncrypted)
@@ -218,6 +242,24 @@ namespace BDShared.Network.Model
 
             memoryStream.Position = 2;
             binaryWriter.Write(bufferToTransform);
+        }
+
+        public void CreateFileDump(DumpLocation dumpLocation = DumpLocation.Desktop, string location = null)
+        {
+            if(dumpLocation == DumpLocation.Desktop)
+            {
+                if(location != null)
+                    File.WriteAllBytes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), location, string.Format("0x{0:X4}.bin", PacketId)), ToArray());
+                else
+                    File.WriteAllBytes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), string.Format("0x{0:X4}.bin", PacketId)), ToArray());
+            }
+            else
+                File.WriteAllBytes(Path.Combine(location, string.Format("0x{0:X4}.bin", PacketId)), ToArray());
+        }
+
+        public void CreateConsoleDump()
+        {
+            Console.WriteLine(ToArray().FormatHex());
         }
 
         public void Dispose()

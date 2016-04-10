@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -48,6 +48,8 @@ namespace BDProxy
             scriptController.Scripts.ForEach(t => t.Unload());
             scriptController.LoadScripts();
             scriptController.Scripts.ForEach(t => t.Load());
+
+            WorldProcessor.CreateWorldNotice("[ScriptController] Scripts have been reloaded.");
         }
 
         public Program()
@@ -63,11 +65,7 @@ namespace BDProxy
 
             while(true)
             {
-                try
-                {
-                    scriptController.Scripts.ForEach(t => t.Tick());
-                }
-                catch(Exception) { break; }
+                
 
                 Thread.Sleep(1);
             }
@@ -138,7 +136,7 @@ namespace BDProxy
         {
             foreach(Script plugin in scriptController.Scripts)
                 e = plugin.Game_CMSG(e);
-            
+
             if(e.PacketId == 0xCEE)
                 MainContext.IsPlayerIngame = true;
             
@@ -150,14 +148,22 @@ namespace BDProxy
                 if(message.StartsWith("/"))
                 {
                     string commandName = message.Replace("/", "").Split(' ')[0];
-                    foreach(var command in CommandProcessor.GetCommandsByName(commandName))
+
+                    List<Command> list = new List<Command>(CommandProcessor.GetCommandsByName(commandName));
+                    if(list.Count > 0)
                     {
-                        string[] parameters = message.Replace("/", "").Split(' ');
-                        command.Parameters.Clear();
-                        for(int i = 1; i < parameters.Length; i++)
-                            command.Parameters.Add(parameters[i]);
-                        command.Callback(command);
+                        for(int i = 0; i < list.Count; i++)
+                        {
+                            var command = list[i];
+                            string[] parameters = message.Replace("/", "").Split(' ');
+                            command.Parameters.Clear();
+                            for(int j = 1; j < parameters.Length; j++)
+                                command.Parameters.Add(parameters[j]);
+                            command.Callback(command);
+                        }
                     }
+                    else
+                        WorldProcessor.CreateWorldNotice("[CommandProcessor] Command does not exist.");
                     return;
                 }
             }

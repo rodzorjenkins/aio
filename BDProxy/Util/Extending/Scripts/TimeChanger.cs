@@ -20,7 +20,7 @@ namespace BDProxy.Util.Extending
             RegisterCommand("time", ProcessTimeCommand);
             base.Load();
         }
-        
+
         private void ProcessTimeCommand(Command command)
         {
             if(command.Parameters.Count < 1)

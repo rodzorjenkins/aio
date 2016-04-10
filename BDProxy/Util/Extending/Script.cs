@@ -19,10 +19,9 @@ namespace BDProxy.Util.Extending
         /// </summary>
         public virtual void Load()
         {
+            IsScriptLoaded = true;
             Logger.Log(Name, "has been loaded.", Logger.LogLevel.Script);
         }
-
-        public virtual void Tick() { }
 
         /// <summary>
         /// Registers a chat command to the CommandProcessor.
@@ -49,6 +48,11 @@ namespace BDProxy.Util.Extending
         /// </summary>
         public bool IsPlayerIngame { get { return MainContext.IsPlayerIngame; } }
 
+
+        public void CreateWorldNotice(string message)
+        {
+            WorldProcessor.CreateWorldNotice(message);
+        }
 
         /// <summary>
         /// Emulates a loginserver packet to the game.
@@ -126,11 +130,14 @@ namespace BDProxy.Util.Extending
             return packet;
         }
 
+        public bool IsScriptLoaded { get; private set; }
+
         /// <summary>
         /// Occurs whenever this script gets unloaded.
         /// </summary>
         public virtual void Unload()
         {
+            IsScriptLoaded = false;
             Logger.Log(Name, "has been unloaded.", Logger.LogLevel.Script);
         }
 
