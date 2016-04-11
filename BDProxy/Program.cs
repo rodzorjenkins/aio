@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -21,7 +22,7 @@ namespace BDProxy
 
         static void Main(string[] args)
         {
-            Console.Title = string.Format("BDProxy | v{0}", Assembly.GetExecutingAssembly().GetName().Version);
+            Console.Title = string.Format("BDProxy | v{0}b", Assembly.GetExecutingAssembly().GetName().Version);
             new Program();
         }        
 
@@ -57,10 +58,14 @@ namespace BDProxy
             TitleArt();            
             SetupCommands();
 
+#if DEBUG
             scriptController = new ScriptController("../../Util/Extending/Scripts/");
+#else
+            scriptController = new ScriptController("scripts/");
+#endif
             scriptController.LoadScripts();
             scriptController.Scripts.ForEach(t => t.Load());
-
+                        
             StartServers();
 
             while(true)
@@ -94,7 +99,7 @@ namespace BDProxy
         }
 
 
-        #region "LoginProxy"
+#region "LoginProxy"
         private void LoginProxy_ServerToGamePacket(object sender, BDPacket e)
         {
             foreach(Script plugin in scriptController.Scripts)
@@ -121,9 +126,9 @@ namespace BDProxy
         {
             Logger.Log("LoginProxy", "Attempt to bind socket to 0.0.0.0:8888!", Logger.LogLevel.Info);
         }
-        #endregion
+#endregion
 
-        #region "GameProxy"
+#region "GameProxy"
         private void GameProxy_ServerToGamePacket(object sender, BDPacket e)
         {
             foreach(Script plugin in scriptController.Scripts)
@@ -180,7 +185,7 @@ namespace BDProxy
         {
             Logger.Log("GameProxy", "Attempt to bind socket to 0.0.0.0:8889!", Logger.LogLevel.Info);
         }
-        #endregion
+#endregion
 
 
     }
