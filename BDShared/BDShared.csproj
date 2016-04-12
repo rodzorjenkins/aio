@@ -49,6 +49,7 @@
     <Compile Include="Util\Attributes\Developer.cs" />
     <Compile Include="Util\Attributes\DisplayName.cs" />
     <Compile Include="Util\BinaryExt.cs" />
+    <Compile Include="Util\Config.cs" />
     <Compile Include="Util\DateTimeExt.cs" />
     <Compile Include="Util\Logger.cs" />
   </ItemGroup>

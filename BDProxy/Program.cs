@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -24,7 +23,7 @@ namespace BDProxy
         {
             Console.Title = string.Format("BDProxy | v{0}b", Assembly.GetExecutingAssembly().GetName().Version);
             new Program();
-        }        
+        }
 
         private void TitleArt()
         {
@@ -33,12 +32,29 @@ namespace BDProxy
             Console.WriteLine(@" ) _ ( ) D ((___)) __/ )   /(  O ))  (  )  / ");
             Console.WriteLine(@"(____/(____/    (__)  (__\_) \__/(_/\_)(__/  ");
             Console.WriteLine();
-            Console.WriteLine("] Coded by Johannes Jacobs");
+            Logger.Log("Developer", "Johannes Jacobs (Yothri)", Logger.LogLevel.Info);
         }
 
         private void SetupCommands()
         {
             CommandProcessor.Register("reload", reloadScriptsCallback);
+        }
+
+        private void LoadConfigurations()
+        {
+            Config.LoadConfiguration("config.cfg");
+            if(Config.Count == 0)
+            {
+                Config.AddValue("ServerName", "BDProxy-Server");
+                Config.AddValue("ChannelName", "BDProxy-Channel");
+                Config.AddValue("authentic_service_port", 8888);
+                Config.AddValue("game_service_port", 8889);
+                Config.AddValue("official_authentic_service_host", "37.48.82.146");
+                Config.AddValue("official_authentic_service_port", 8888);
+                Config.AddValue("official_game_service_host", "37.48.82.139");
+                Config.AddValue("official_game_service_port", 8889);
+            }
+            Logger.Log("Configuration", "Successfully loaded {0} configurations.", Logger.LogLevel.Config, Config.Count);
         }
 
         private void reloadScriptsCallback(Command command)
@@ -55,8 +71,9 @@ namespace BDProxy
 
         public Program()
         {
-            TitleArt();            
+            TitleArt();
             SetupCommands();
+            LoadConfigurations();
 
 #if DEBUG
             scriptController = new ScriptController("../../Util/Extending/Scripts/");
@@ -70,15 +87,20 @@ namespace BDProxy
 
             while(true)
             {
-                
-
                 Thread.Sleep(1);
+                string input = Console.ReadLine();
+                if(input.Equals("exit"))
+                    break;
+                
             }
 
             scriptController.Scripts.ForEach(t => t.Unload());
             scriptController.UnloadScripts();
 
-            Console.ReadLine();
+            Config.SaveConfiguration();
+            Logger.Log("Configuration", "Successfully saved {0} configurations.", Logger.LogLevel.Config, Config.Count);
+
+            Console.Read();
         }
 
         private void StartServers()
@@ -88,14 +110,14 @@ namespace BDProxy
             MainContext.loginProxy.ConnectionAccepted += LoginProxy_ConnectionAccepted;
             MainContext.loginProxy.GameToServerPacket += LoginProxy_GameToServerPacket;
             MainContext.loginProxy.ServerToGamePacket += LoginProxy_ServerToGamePacket;
-            MainContext.loginProxy.StartServer(new IPEndPoint(IPAddress.Any, 8888));
+            MainContext.loginProxy.StartServer(new IPEndPoint(IPAddress.Any, Config.GetValue<int>("authentic_service_port")));
 
             MainContext.gameProxy = new TcpProxy();
             MainContext.gameProxy.ServerListening += GameProxy_ServerListening;
             MainContext.gameProxy.ConnectionAccepted += GameProxy_ConnectionAccepted;
             MainContext.gameProxy.GameToServerPacket += GameProxy_GameToServerPacket;
             MainContext.gameProxy.ServerToGamePacket += GameProxy_ServerToGamePacket;
-            MainContext.gameProxy.StartServer(new IPEndPoint(IPAddress.Any, 8889));
+            MainContext.gameProxy.StartServer(new IPEndPoint(IPAddress.Any, Config.GetValue<int>("game_service_port")));
         }
 
 
@@ -119,12 +141,12 @@ namespace BDProxy
         private void LoginProxy_ConnectionAccepted(object sender, EventArgs e)
         {
             Logger.Log("LoginProxy", "Game client has been accepted.", Logger.LogLevel.Normal);
-            MainContext.loginProxy.ConnectClient(new IPEndPoint(IPAddress.Parse("37.48.82.146"), 8888));
+            MainContext.loginProxy.ConnectClient(new IPEndPoint(IPAddress.Parse(Config.GetValue<string>("official_authentic_service_host")), Config.GetValue<int>("official_authentic_service_port")));
         }
 
         private void LoginProxy_ServerListening(object sender, EventArgs e)
         {
-            Logger.Log("LoginProxy", "Attempt to bind socket to 0.0.0.0:8888!", Logger.LogLevel.Info);
+            Logger.Log("LoginProxy", "Attempt to bind socket to 0.0.0.0:{0}!", Logger.LogLevel.Info, Config.GetValue<int>("authentic_service_port"));
         }
 #endregion
 
@@ -178,12 +200,12 @@ namespace BDProxy
         private void GameProxy_ConnectionAccepted(object sender, EventArgs e)
         {
             Logger.Log("GameProxy", "Game client has been accepted.", Logger.LogLevel.Normal);
-            MainContext.gameProxy.ConnectClient(new IPEndPoint(IPAddress.Parse("37.48.82.139"), 8889));
+            MainContext.gameProxy.ConnectClient(new IPEndPoint(IPAddress.Parse(Config.GetValue<string>("official_game_service_host")), Config.GetValue<int>("official_game_service_port")));
         }
 
         private void GameProxy_ServerListening(object sender, EventArgs e)
         {
-            Logger.Log("GameProxy", "Attempt to bind socket to 0.0.0.0:8889!", Logger.LogLevel.Info);
+            Logger.Log("GameProxy", "Attempt to bind socket to 0.0.0.0:{0}!", Logger.LogLevel.Info, Config.GetValue<int>("game_service_port"));
         }
 #endregion
 

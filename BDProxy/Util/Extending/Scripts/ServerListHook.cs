@@ -41,8 +41,8 @@ namespace BDProxy.Util.Extending
                 p.AddShort(1); // server id
                 p.AddShort(16384); // ranodm value,
 
-                p.AddString("BDProxy - Channel", Encoding.Unicode, 62); // channel name
-                p.AddString("BDProxy - Server", Encoding.Unicode, 62); // server name
+                p.AddString(Config.GetValue<string>("ChannelName"), Encoding.Unicode, 62); // channel name
+                p.AddString(Config.GetValue<string>("ServerName"), Encoding.Unicode, 62); // server name
 
                 p.AddByte(0);
                 p.AddString("127.0.0.1", Encoding.ASCII, 16);

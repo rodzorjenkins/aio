@@ -11,7 +11,8 @@ namespace BDShared.Util
             Info,
             Warning,
             Error,
-            Script
+            Script,
+            Config
         }
 
         private static void SetConsoleColor(LogLevel logLevel)
@@ -32,6 +33,9 @@ namespace BDShared.Util
                     break;
                 case LogLevel.Script:
                     Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                    break;
+                case LogLevel.Config:
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
                     break;
             }
         }
