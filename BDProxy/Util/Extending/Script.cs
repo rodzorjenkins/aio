@@ -48,7 +48,10 @@ namespace BDProxy.Util.Extending
         /// </summary>
         public bool IsPlayerIngame { get { return MainContext.IsPlayerIngame; } }
 
-
+        /// <summary>
+        /// Creates an ingame Notice message.
+        /// </summary>
+        /// <param name="message">The message to be shown ingame.</param>
         public void CreateWorldNotice(string message)
         {
             WorldProcessor.CreateWorldNotice(message);
@@ -130,6 +133,9 @@ namespace BDProxy.Util.Extending
             return packet;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this script is still loaded or not.
+        /// </summary>
         public bool IsScriptLoaded { get; private set; }
 
         /// <summary>

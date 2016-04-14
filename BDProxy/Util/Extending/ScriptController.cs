@@ -44,16 +44,6 @@ namespace BDProxy.Util.Extending
             Logger.Log("ScriptController", "Loaded {0} script(s).", Logger.LogLevel.Script, Scripts.Count);
         }
 
-        public bool Contains(string name)
-        {
-            return Scripts.Exists(t => t.Name.Equals(name));
-        }
-
-        public Script GetScriptByName(string name)
-        {
-            return Scripts.First(t => t.Name.Equals(name));
-        }
-
         public void UnloadScripts()
         {
             Scripts.Clear();

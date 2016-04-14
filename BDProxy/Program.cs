@@ -66,7 +66,8 @@ namespace BDProxy
             scriptController.LoadScripts();
             scriptController.Scripts.ForEach(t => t.Load());
 
-            WorldProcessor.CreateWorldNotice("[ScriptController] Scripts have been reloaded.");
+            if(MainContext.IsPlayerIngame)
+                WorldProcessor.CreateWorldNotice("[ScriptController] Scripts have been reloaded.");
         }
 
         public Program()
@@ -146,7 +147,7 @@ namespace BDProxy
 
         private void LoginProxy_ServerListening(object sender, EventArgs e)
         {
-            Logger.Log("LoginProxy", "Attempt to bind socket to 0.0.0.0:{0}!", Logger.LogLevel.Info, Config.GetValue<int>("authentic_service_port"));
+            Logger.Log("LoginProxy", "is now listening on port {0}.", Logger.LogLevel.Info, Config.GetValue<int>("authentic_service_port"));
         }
 #endregion
 
@@ -205,7 +206,7 @@ namespace BDProxy
 
         private void GameProxy_ServerListening(object sender, EventArgs e)
         {
-            Logger.Log("GameProxy", "Attempt to bind socket to 0.0.0.0:{0}!", Logger.LogLevel.Info, Config.GetValue<int>("game_service_port"));
+            Logger.Log("GameProxy", "is now listening on port {0}.", Logger.LogLevel.Info, Config.GetValue<int>("game_service_port"));
         }
 #endregion
 

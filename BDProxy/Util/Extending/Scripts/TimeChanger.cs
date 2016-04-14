@@ -22,6 +22,7 @@ namespace BDProxy.Util.Extending
             RegisterCommand("spawn", SpawnCommand);
             RegisterCommand("respawn", RespawnCommand);
             RegisterCommand("test", TestCommand);
+            
             base.Load();
         }
 
@@ -125,8 +126,8 @@ namespace BDProxy.Util.Extending
         public override BDPacket Game_SMSG(BDPacket packet)
         {
 
-
-
+            if(packet.PacketId == 0xd55)
+                packet.CreateFileDump();
             return packet;
         }
 

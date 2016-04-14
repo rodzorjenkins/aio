@@ -51,7 +51,9 @@
     <Compile Include="Util\BinaryExt.cs" />
     <Compile Include="Util\Config.cs" />
     <Compile Include="Util\DateTimeExt.cs" />
+    <Compile Include="Util\Enums\Keys.cs" />
     <Compile Include="Util\Logger.cs" />
+    <Compile Include="Util\Win32\Natives.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
