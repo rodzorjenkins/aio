@@ -216,6 +216,12 @@ namespace BDShared.Network.Model
             return binaryReader.ReadByte();
         }
 
+        public int GetInt(int pos)
+        {
+            memoryStream.Position = pos;
+            return binaryReader.ReadInt32();
+        }
+
         public long GetLong(int pos)
         {
             memoryStream.Position = pos;

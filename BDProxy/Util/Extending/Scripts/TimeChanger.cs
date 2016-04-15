@@ -1,4 +1,4 @@
-using System;
+using System.Threading;
 using BDProxy.Processors.Model;
 using BDShared.Network.Model;
 
@@ -7,6 +7,8 @@ namespace BDProxy.Util.Extending
 
     public class TimeChanger : Script
     {
+
+        private System.Diagnostics.Stopwatch stopWatch;
 
         public override string Name
         {
@@ -18,12 +20,25 @@ namespace BDProxy.Util.Extending
 
         public override void Load()
         {
+            stopWatch = new System.Diagnostics.Stopwatch();
+
             RegisterCommand("time", ProcessTimeCommand);
             RegisterCommand("spawn", SpawnCommand);
             RegisterCommand("respawn", RespawnCommand);
             RegisterCommand("test", TestCommand);
+
+            new Thread(Tick).Start();
             
             base.Load();
+        }
+
+        private void Tick()
+        {
+            while(IsScriptLoaded)
+            {
+                if(stopWatch.ElapsedMilliseconds >= 1)
+                    gameTime++;
+            }
         }
 
         private void TestCommand(Command command)
@@ -99,35 +114,26 @@ namespace BDProxy.Util.Extending
             if(packet.PacketId == 0xbd6)
                 packet.CreateFileDump();
             
-            if(packet.PacketId == 0xbca)
-            {
-
-                float x = packet.GetFloat(7);
-                float y = packet.GetFloat(11);
-                float z = packet.GetFloat(15);
-
-                this.x = x;
-                this.y = y;
-                this.z = z;
-
-                float cosinus = packet.GetFloat(19);
-                float sinus = packet.GetFloat(27);
-
-                var cHeading = Math.Acos(cosinus);
-                var sHeading = Math.Asin(sinus);
-
-                var heading = x * cHeading - y * sHeading;
-                
-            }
 
             return packet;
         }
+
+        int gameTime = 0;
 
         public override BDPacket Game_SMSG(BDPacket packet)
         {
 
             if(packet.PacketId == 0xd55)
-                packet.CreateFileDump();
+            {
+                gameTime = packet.GetInt(7);
+                if(stopWatch.IsRunning)
+                    stopWatch.Reset();
+                stopWatch.Start();
+            }
+
+            if(packet.PacketId == 0x1072)
+                packet.SetInt(0, 7);
+
             return packet;
         }
 

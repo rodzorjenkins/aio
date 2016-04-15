@@ -13,6 +13,7 @@ using BDShared.GUI.ViewModels;
 using BDShared.Util.Attributes;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace BDCustomLauncher.ViewModels
 {
@@ -113,44 +114,38 @@ namespace BDCustomLauncher.ViewModels
                 var loginFrame = await loginUser(textEmail, passwordBox.Password);
                 if(loginFrame != null)
                 {
-                    if(loginFrame.result.token != null)
+
+                    Process p = new Process();
+                    if(File.Exists("BlackDesert64.exe"))
+                        p.StartInfo.FileName = "BlackDesert64.exe";
+                    else if(File.Exists("BlackDesert32.exe"))
+                        p.StartInfo.FileName = "BlackDesert32.exe";
+                    else
                     {
-                        Process p = new Process();
-                        if(File.Exists("BlackDesert64.exe"))
-                            p.StartInfo.FileName = "BlackDesert64.exe";
-                        else if(File.Exists("BlackDesert32.exe"))
-                            p.StartInfo.FileName = "BlackDesert32.exe";
-                        else
+                        if(string.IsNullOrEmpty(gamePath))
                         {
-                            if(string.IsNullOrEmpty(gamePath))
+                            var ofd = new OpenFileDialog();
+                            ofd.Filter = "Black Desert 32-Bit|BlackDesert32.exe|BlackDesert 64-Bit|BlackDesert64.exe";
+                            ofd.Multiselect = false;
+                            if((bool)ofd.ShowDialog())
                             {
-                                var ofd = new OpenFileDialog();
-                                ofd.Filter = "Black Desert 32-Bit|BlackDesert32.exe|BlackDesert 64-Bit|BlackDesert64.exe";
-                                ofd.Multiselect = false;
-                                if((bool)ofd.ShowDialog())
-                                {
-                                    gamePath = ofd.FileName;
-                                    p.StartInfo.FileName = ofd.FileName;
-                                    p.StartInfo.WorkingDirectory = Path.GetDirectoryName(gamePath);
-                                }
-                            }
-                            else
-                            {
-                                p.StartInfo.FileName = gamePath;
+                                gamePath = ofd.FileName;
+                                p.StartInfo.FileName = ofd.FileName;
                                 p.StartInfo.WorkingDirectory = Path.GetDirectoryName(gamePath);
                             }
                         }
-                        p.StartInfo.Arguments = loginFrame.result.token;
-
-                        if(!string.IsNullOrWhiteSpace(p.StartInfo.FileName))
+                        else
                         {
-                            p.Start();
-                            Application.Current.MainWindow.Close();
+                            p.StartInfo.FileName = gamePath;
+                            p.StartInfo.WorkingDirectory = Path.GetDirectoryName(gamePath);
                         }
                     }
-                    else
+                    p.StartInfo.Arguments = loginFrame;
+
+                    if(!string.IsNullOrWhiteSpace(p.StartInfo.FileName))
                     {
-                        MessageBox.Show("Unable to login to Black Desert Online account, please try again later.", "Login error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        p.Start();
+                        Application.Current.MainWindow.Close();
                     }
                 }
             }
@@ -158,7 +153,7 @@ namespace BDCustomLauncher.ViewModels
             buttonStartGameEnabled = true;
         }
 
-        private async Task<LoginFrame> loginUser(string email, string password)
+        private async Task<string> loginUser(string email, string password)
         {
             try
             {
@@ -177,7 +172,50 @@ namespace BDCustomLauncher.ViewModels
                     {
                         using(var reader = new StreamReader(resStream))
                         {
-                            return await await Task.Factory.StartNew(async() => JsonConvert.DeserializeObject<LoginFrame>(await reader.ReadToEndAsync()));
+                            string token1 = await reader.ReadToEndAsync();
+                            LoginFrame loginFrame = JsonConvert.DeserializeObject<LoginFrame>(token1);
+                            if(loginFrame.result.token != null)
+                            {
+                                string token2 = await GetPlayToken(loginFrame.result.token);
+                                JObject obj = JObject.Parse(token2);
+                                if(obj["result"]["token"] != null)
+                                    return obj["result"]["token"].ToString();
+                                else
+                                    MessageBox.Show("Unable to login to Black Desert Online account, please try again later.", "Login error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+                            else
+                                MessageBox.Show("Unable to login to Black Desert Online account, please try again later.", "Login error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                    }
+                }
+            }
+            catch(Exception)
+            {
+                MessageBox.Show("Unable to login to Black Desert Online account, please try again later.", "Login error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            return null;
+        }
+
+        private async Task<string> GetPlayToken(string token1)
+        {
+            try
+            {
+                var request = HttpWebRequest.Create("https://www.blackdesertonline.com/launcher/l/api/CreatePlayToken.json");
+                request.Method = "POST";
+                request.ContentType = "application/x-www-form-urlencoded";
+
+                byte[] data = Encoding.UTF8.GetBytes(string.Format("token={0}", token1));
+                using(var reqStream = await request.GetRequestStreamAsync())
+                {
+                    await reqStream.WriteAsync(data, 0, data.Length);
+                }
+                using(var res = await request.GetResponseAsync())
+                {
+                    using(var resStream = res.GetResponseStream())
+                    {
+                        using(var reader = new StreamReader(resStream))
+                        {
+                            return await reader.ReadToEndAsync();
                         }
                     }
                 }
