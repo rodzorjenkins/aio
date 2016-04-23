@@ -8,7 +8,7 @@ namespace BDProxy.Processors.Model
         public class Packet
         {
             public string Name { get; set; }
-            public ushort PacketId { get; set; }
+            public ushort Id { get; set; }
         }
 
         public List<Packet> Packets { get; set; }

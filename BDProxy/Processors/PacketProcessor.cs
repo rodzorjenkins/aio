@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace BDProxy.Processors
 {
-    internal class PacketProcessor
+    public class PacketProcessor
     {
         
         public static PacketList ClientMessages, ServerMessages;
