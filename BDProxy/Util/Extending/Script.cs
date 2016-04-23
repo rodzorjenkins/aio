@@ -132,7 +132,7 @@ namespace BDProxy.Util.Extending
         {
             return packet;
         }
-
+        
         /// <summary>
         /// Gets a value indicating whether this script is still loaded or not.
         /// </summary>

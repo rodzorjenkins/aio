@@ -53,7 +53,11 @@ namespace BDShared.Network.Model
             return binaryReader.ReadUInt16();
         }
 
-        
+        public uint GetUInt(int pos)
+        {
+            memoryStream.Position = pos;
+            return binaryReader.ReadUInt32();
+        }
 
         public ushort Length { get { return (ushort)memoryStream.Length; } }
         public byte[] ToArray() { return memoryStream.ToArray(); }
@@ -193,6 +197,9 @@ namespace BDShared.Network.Model
             => binaryWriter.Write(data);
 
         public void AddByte(byte data)
+            => binaryWriter.Write(data);
+
+        public void AddUInt(uint data)
             => binaryWriter.Write(data);
 
         public void AddBytes(byte[] data)

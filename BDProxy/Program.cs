@@ -55,6 +55,9 @@ namespace BDProxy
                 Config.AddValue("official_game_service_port", 8889);
             }
             Logger.Log("Configuration", "Successfully loaded {0} configurations.", Logger.LogLevel.Config, Config.Count);
+
+            if(Config.ContainsKey("usePacketProcessor") && Config.GetValue<bool>("usePacketProcessor"))
+                PacketProcessor.LoadPackets();
         }
 
         private void reloadScriptsCallback(Command command)
